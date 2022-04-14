@@ -1,26 +1,39 @@
 import socket
 import sys
+from string import ascii_lowercase, digits
+from itertools import product
 
 
 def receive_cmd():
     HOST = sys.argv[1]
     PORT = sys.argv[2]
-    message = sys.argv[3]
-    return HOST, PORT, message
+    return HOST, PORT
 
 
-def create_socket(HOST, PORT, message):
+def create_socket(HOST, PORT):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        message = message.encode()
-        s.send(message)
-        response = s.recv(1024)
-        response = response.decode()
-        print(response)
+        create_pwd(s)
 
 
-def create_pwd():
-    pass
+def create_pwd(s):
+    length = 1
+    is_on = True
+    while is_on:
+        pass_iter = product(letters_digits, repeat=length)
+        for pwd in pass_iter:
+            data = "".join(pwd)
+            msg = data.encode()
+            s.send(msg)
+            response = s.recv(1024)
+            response = response.decode()
+            if response == "Connection success!":
+                print(data)
+                is_on = False
+                break
+        length += 1
 
-HOST, PORT, message = receive_cmd()
-create_socket(HOST, int(PORT), message)
+
+HOST, PORT = receive_cmd()
+letters_digits = ascii_lowercase + digits
+create_socket(HOST, int(PORT))
